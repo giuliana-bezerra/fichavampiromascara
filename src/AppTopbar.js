@@ -2,6 +2,10 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 export class AppTopbar extends Component {
+    constructor() {
+        super();
+        this.state = { ficha: 'block', logado: false };
+    }
 
     static defaultProps = {
         onToggleMenu: null
@@ -14,10 +18,11 @@ export class AppTopbar extends Component {
     render() {
         return (
             <div className="layout-topbar clearfix">
-                <button className="p-link layout-menu-button" onClick={this.props.onToggleMenu}>
+                <button className="p-link layout-menu-button" onClick={this.props.onToggleMenu} disabled={this.props.autenticado}>
                     <span className="pi pi-bars"/>
                 </button>
-                <div className="layout-topbar-icons">
+                <div className="layout-topbar-icons" style={{display: this.state.ficha}}>
+                    Bônus: <span className="w3-badge w3-green">6</span>
                     <button className="p-link">
                         <span className="layout-topbar-item-text">Salvar</span>
                         <span className="layout-topbar-icon pi pi-check"/>

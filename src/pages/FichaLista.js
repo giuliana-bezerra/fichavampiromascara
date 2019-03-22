@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
+import { DataView } from 'primereact/dataview';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
@@ -17,7 +17,8 @@ class FichaLista extends Component {
                 {label: 'Oldest First', value: 'year'},
                 {label: 'Brand', value: 'brand'}
             ],
-            layout: 'grid'
+            layout: 'grid',
+            pontosBonus: 0
         }
         this.carService = new CarService();
     }
@@ -84,13 +85,9 @@ class FichaLista extends Component {
 
             <Dialog header="Pontos da Ficha" footer={dialogFooter} visible={this.state.dialogVisible} onHide={() => this.setState({dialogVisible:false})}>
                 <div className="p-grid">
-                    <div className="p-col-4" style={{padding:'.75em'}}><label htmlFor="nome">Pontos Normais:</label></div>
-                    <div className="p-col-8" style={{padding:'.5em'}}>
-                        <InputText id="nome"/>
-                    </div>
                     <div className="p-col-4" style={{padding:'.75em'}}><label htmlFor="nome">Pontos Bônus:</label></div>
                     <div className="p-col-8" style={{padding:'.5em'}}>
-                        <InputText id="nome"/>
+                        <InputText id="nome" value={this.state.pontosBonus} onInput={event => this.setState({pontosBonus: event.target.value})} keyfilter="pnum"/>
                     </div>
                 </div>
             </Dialog>

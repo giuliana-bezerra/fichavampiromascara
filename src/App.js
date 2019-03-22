@@ -6,7 +6,6 @@ import {AppMenu} from './AppMenu';
 import AppInlineProfile from './AppInlineProfile';
 import {Route} from 'react-router-dom';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
-import {Sidebar} from 'primereact/sidebar';
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -22,10 +21,10 @@ import Logout from './pages/Logout';
 import Logon from './pages/Logon';
 import Registro from './pages/Registro';
 import { withRouter } from 'react-router-dom';
-import Pontos from './components/Pontos';
+import { matchPath } from "react-router";
+import { Button } from 'primereact/button';
 
 class App extends Component {
-
     constructor() {
         super();
         this.state = {
@@ -43,6 +42,7 @@ class App extends Component {
         this.createMenu();
     }
 
+    /*********** Events Layout ***********/
     onWrapperClick(event) {
         if (!this.menuClick) {
             this.setState({
@@ -93,20 +93,7 @@ class App extends Component {
         }
     }
 
-    createMenu() {
-        this.menu = [
-            {label: 'Home', icon: 'pi pi-fw pi-home', command: () => this.props.history.push('/home')}
-            // {
-            //     label: 'Menu Hierarchy', icon: 'pi pi-fw pi-search',
-            //     items: [
-            //         {
-            //             label: 'Submenu 1', icon: 'pi pi-fw pi-bookmark',
-            //         }
-            //     ]
-            // },
-        ];
-    }
-
+    /*********** Utils ***********/
     addClass(element, className) {
         if (element.classList)
             element.classList.add(className);
@@ -125,6 +112,41 @@ class App extends Component {
         return window.innerWidth > 1024;
     }
 
+    createMenu() {
+        this.menu = [
+            {label: 'Home', icon: 'pi pi-fw pi-home', command: () => this.props.history.push('/home')}
+            // {
+            //     label: 'Menu Hierarchy', icon: 'pi pi-fw pi-search',
+            //     items: [
+            //         {
+            //             label: 'Submenu 1', icon: 'pi pi-fw pi-bookmark',
+            //         }
+            //     ]
+            // },
+        ];
+    }
+
+    /*********** Lifecycle methods ***********/
+    componentDidMount() {
+        this.props.history.listen((location, action) => {
+            debugger;
+            const resultado = matchPath(location.pathname, {
+                path: '/home',
+                exact: false,
+                strict: false
+            });
+
+            // location is an object like window.location
+            console.log(action, location.pathname, location.state);
+            // if(resultado && localStorage.getItem('auth-token') === null){
+            //     this.props.history.replace('/?msg=você precisa estar logado para acessar o endereço');
+            //     this.setState({staticMenuInactive: true});
+            // } else if (!resultado)
+            //     this.setState({staticMenuInactive: false});
+            // else
+                this.setState({staticMenuInactive: false});
+        });
+    }
     componentDidUpdate() {
         if (this.state.mobileMenuActive)
             this.addClass(document.body, 'body-overflow-hidden');
@@ -146,10 +168,8 @@ class App extends Component {
 
         return (
             <div className={wrapperClass} onClick={this.onWrapperClick}>
-                <AppTopbar onToggleMenu={this.onToggleMenu}/>
-                
+                <AppTopbar onToggleMenu={this.onToggleMenu} autenticado={this.state.staticMenuInactive}/>
                 <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
-
                     <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height:'100%'}}>
                         <div className="layout-sidebar-scroll-content" >
                             <div className="layout-logo">
@@ -164,7 +184,7 @@ class App extends Component {
                 <div className="layout-main">
                     <Route exact path="/" component={Logon} />
                     <Route path="/registro" component={Registro} />
-                    <Route path="/home" component={FichaLista} />
+                    <Route path="/home" component={FichaLista}/>
                     <Route path="/ficha" component={Ficha}/>
                     <Route path="/conta" component={Conta}/>
                     <Route path="/logout" component={Logout}/>
