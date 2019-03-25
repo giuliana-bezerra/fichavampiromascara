@@ -59,12 +59,11 @@ export default class MensagemDataTableCrud extends Component {
         this.setState({car: car});
     }
 
-    onCarSelect(e){
-        console.log('Aqui: ', e.data);
+    onCarSelect(event){
         this.newCar = false;
         this.setState({
             displayDialog:true,
-            car: Object.assign({}, e.data)
+            car: Object.assign({}, event.data)
         });
     }
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {InputText} from 'primereact/inputtext';
 import { Fieldset } from 'primereact/fieldset';
 import {Checkbox} from 'primereact/checkbox';
-import { DataTableCrud } from './DataTableCrud';
+import { PontoDataTableCrud } from './PontoDataTableCrud';
 import {Editor} from 'primereact/editor';
 import {Dropdown} from 'primereact/dropdown';
 import {Spinner} from 'primereact/spinner';
@@ -793,12 +793,12 @@ export default class Ficha extends Component {
                         <div className="card card-w-title">
                             <h1>Antecedentes</h1>
                             <span className="w3-badge w3-green">5</span>
-                            <DataTableCrud title="Antecedente"/>
+                            <PontoDataTableCrud title="Antecedente"/>
                         </div>
                         <div className="card card-w-title">
                             <h1>Disciplinas</h1>
                             <span className="w3-badge w3-green">3</span>
-                            <DataTableCrud title="Disciplina"/>
+                            <PontoDataTableCrud title="Disciplina"/>
                         </div>
                         <div className="card card-w-title">
                             <h1>Virtudes</h1>
@@ -832,7 +832,7 @@ export default class Ficha extends Component {
                     <div className="card card-w-title">
                         <h1>Qualidades e Defeitos</h1>
                         <div className="p-grid">
-                            <DataTableCrud title="Qualidade/Defeito"/>
+                            <PontoDataTableCrud title="Qualidade/Defeito"/>
                         </div>
                     </div>
                     <div className="card card-w-title">
