@@ -4,6 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import { Spinner } from 'primereact/spinner';
 
 export class DataTableCrud extends Component {
     constructor() {
@@ -101,7 +102,7 @@ export class DataTableCrud extends Component {
 
                             <div className="p-col-4" style={{padding:'.75em'}}><label htmlFor="pontos">Pontos</label></div>
                             <div className="p-col-8" style={{padding:'.5em'}}>
-                                <InputText id="pontos" onChange={(e) => {this.updateProperty('pontos', e.target.value)}} value={this.state.car.pontos} keyfilter="pnum"/>
+                                <Spinner id="pontos" readonly={true} min={1} onChange={(e) => {this.updateProperty('pontos', e.target.value)}} value={this.state.car.pontos}/>
                             </div>
                         </div>
                     }
