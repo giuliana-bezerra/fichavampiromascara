@@ -22,7 +22,6 @@ export class AppTopbar extends Component {
                     <span className="pi pi-bars"/>
                 </button>
                 <div className="layout-topbar-icons" style={{display: this.state.ficha}}>
-                    Bônus: <span className="w3-badge w3-green">6</span>
                     <button className="p-link">
                         <span className="layout-topbar-item-text">Salvar</span>
                         <span className="layout-topbar-icon pi pi-check"/>

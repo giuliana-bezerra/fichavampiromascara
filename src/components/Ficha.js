@@ -6,6 +6,7 @@ import { PontoDataTableCrud } from './PontoDataTableCrud';
 import {Editor} from 'primereact/editor';
 import {Dropdown} from 'primereact/dropdown';
 import {Spinner} from 'primereact/spinner';
+import Pontos from './Pontos';
 
 
 export default class Ficha extends Component {
@@ -28,7 +29,8 @@ export default class Ficha extends Component {
                     antecedentes: 5,
                     disciplinas: 3,
                     virtudes: 8
-                }
+                },
+                pontosBonus: 0
             },
             mesaSelecionada: null, 
             mesas: [],
@@ -114,8 +116,7 @@ export default class Ficha extends Component {
                 preludio: {
                     texto: ''
                 },
-                usuario: '',
-                pontosBonus: 15
+                usuario: ''
             }
         };
     }
@@ -180,8 +181,8 @@ export default class Ficha extends Component {
     }
 
     getTotalPontosBonusRestantes() {
-        console.log(this.state.ficha.pontosBonus - this.getPontosBonusGastos());
-        return this.state.ficha.pontosBonus - this.getPontosBonusGastos();
+        console.log(this.state.pontuacaoFicha.pontosBonus - this.getPontosBonusGastos());
+        return this.state.pontuacaoFicha.pontosBonus - this.getPontosBonusGastos();
     }
 
     getPontosBonusGastos() {
@@ -262,6 +263,11 @@ export default class Ficha extends Component {
 
     componentDidMount() {
         this.setState({mesas: [{label: 'Mesa 1', value: 1}, {label: 'Mesa 2', value: 2}]});
+        if (this.props.location.state != null) {
+            const pontuacaoFicha = this.state.pontuacaoFicha;
+            this.setState({pontuacaoFicha: {...pontuacaoFicha, pontosBonus: this.props.location.state.pontos}});
+        } else
+            this.props.history.push('/home');
     }
 
     render() {
@@ -890,6 +896,7 @@ export default class Ficha extends Component {
                         <Editor style={{height:'320px'}} />
                     </div>
                 </div>
+                <Pontos pontos={this.state.pontuacaoFicha.pontosBonus}/>
             </div>
         );
     }

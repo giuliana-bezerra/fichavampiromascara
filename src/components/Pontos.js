@@ -6,7 +6,7 @@ export default class Pontos extends Component {
             <div className="clearfix">
                 <div className="pontos-phantom" />
                 <div className="pontos">
-                    Bônus: <span className="w3-badge w3-green">6</span>
+                    Bônus: <span className="w3-badge w3-green">{this.props.pontos}</span>
                 </div>
             </div>
         );

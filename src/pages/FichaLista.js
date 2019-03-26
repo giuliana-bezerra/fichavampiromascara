@@ -78,7 +78,7 @@ class FichaLista extends Component {
     render() {
         let dialogFooter = <div className="ui-dialog-buttonpane p-clearfix">
             <Button icon="pi pi-times" onClick={e => this.setState({dialogVisible:false})}/>
-            <Button icon="pi pi-check" onClick={e => this.props.history.push('/ficha')}/>
+            <Button icon="pi pi-check" onClick={e => this.props.history.push({pathname: '/ficha', state: {pontos: this.state.pontosBonus}})}/>
         </div>;
         let footer = <div className="p-clearfix" style={{width:'100%'}}>
             <Button style={{float:'left'}} label="Criar nova ficha" icon="pi pi-plus" onClick={e => this.setState({dialogVisible:true})}/>
