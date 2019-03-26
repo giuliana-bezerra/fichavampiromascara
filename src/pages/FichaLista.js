@@ -18,7 +18,7 @@ class FichaLista extends Component {
                 {label: 'Brand', value: 'brand'}
             ],
             layout: 'grid',
-            pontosBonus: 0
+            pontosBonus: 15
         }
         this.carService = new CarService();
     }

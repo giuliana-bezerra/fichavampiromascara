@@ -129,7 +129,6 @@ class App extends Component {
     /*********** Lifecycle methods ***********/
     componentDidMount() {
         this.props.history.listen((location, action) => {
-            debugger;
             const resultado = matchPath(location.pathname, {
                 path: '/home',
                 exact: false,
