@@ -46,8 +46,20 @@ export default class Ficha extends Component {
             disciplinas: [],
             qualidadesDefeitos: [],
             clas: [],
+            arquetipos: [],
             ficha: {
-                conceito: '',
+                conceito: {
+                    nome: '', 
+                    jogador: '',
+                    cronica: '',
+                    natureza: '',
+                    comportamento: '',
+                    cla: '',
+                    geracao: 13,
+                    refugio: '',
+                    conceito: '',
+                    mesa: ''
+                },
                 atributos: {
                     fisicos: {
                         forca: { normal: 1, bonus: 0 },
@@ -352,11 +364,24 @@ export default class Ficha extends Component {
         fetch('https://vampiroamascaraservice.herokuapp.com/qualidadedefeito', { headers }).then(res => res.json())
         .then(json => json.map(obj => ({label: `${obj.nome} (${obj.pontos})`, value: obj}))).then(qualidadesDefeitos =>  this.setState({qualidadesDefeitos}));
 
+        fetch('https://vampiroamascaraservice.herokuapp.com/cla', { headers }).then(res => res.json())
+        .then(json => json.map(obj => ({label: obj.nome, value: obj.nome}))).then(clas =>  this.setState({clas}));
+
+        fetch('https://vampiroamascaraservice.herokuapp.com/arquetipo', { headers }).then(res => res.json())
+        .then(json => json.map(obj => ({label: obj.nome, value: obj.nome}))).then(arquetipos =>  this.setState({arquetipos}));
+
         if (this.props.location.state != null) {
             const pontuacaoFicha = this.state.pontuacaoFicha;
             this.setState({ pontuacaoFicha: { ...pontuacaoFicha, pontosBonus: this.props.location.state.pontos } });
         } else
             this.props.history.push('/home');
+    }
+
+    updateProperty(property, subproperty, value) {
+        let ficha = this.state.ficha;
+        ficha[property][subproperty] = value;
+        this.setState({ficha});
+        console.log(this.state.ficha);
     }
 
     render() {
@@ -388,25 +413,27 @@ export default class Ficha extends Component {
                                 <label htmlFor="naturezaInput">Natureza:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="naturezaInput" />
+                                <Dropdown id="naturezaInput" placeholder="Selecione..." options={this.state.arquetipos} 
+                                value={this.state.ficha.conceito.natureza.nome} onChange={event => this.updateProperty('conceito', 'natureza', {nome: event.value})} autoWidth={false} />
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="comportamentoInput">Comportamento:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="comportamentoInput" />
+                                <Dropdown id="comportamentoInput" placeholder="Selecione..." options={this.state.arquetipos} 
+                                value={this.state.ficha.conceito.comportamento.nome} onChange={event => this.updateProperty('conceito', 'comportamento', {nome: event.value})} autoWidth={false} />
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="claInput">Clã:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="claInput" />
+                                <Dropdown id="claInput" placeholder="Selecione..." options={this.state.clas} value={this.state.ficha.conceito.cla.nome} onChange={event => this.updateProperty('conceito', 'cla', {nome: event.value})} autoWidth={false} />
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="geracaoInput">Geração:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="geracaoInput" />
+                                <InputText id="geracaoInput" readOnly={true} value={this.state.ficha.conceito.geracao}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="refugioInput">Refúgio:</label>
@@ -421,10 +448,10 @@ export default class Ficha extends Component {
                                 <InputText id="conceitoInput" />
                             </div>
                             <div className="p-col-12 p-md-2">
-                                <label htmlFor="conceitoInput">Mesa:</label>
+                                <label htmlFor="mesaInput">Mesa:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <Dropdown options={this.state.mesas} value={this.state.mesaSelecionada} onChange={event => this.setState({ mesaSelecionada: event.value })} autoWidth={false} />
+                                <Dropdown id="mesaInput" options={this.state.mesas} placeholder="Selecione..." value={this.state.mesaSelecionada} onChange={event => this.setState({ mesaSelecionada: event.value })} autoWidth={false} />
                             </div>
                         </div>
                     </div>
