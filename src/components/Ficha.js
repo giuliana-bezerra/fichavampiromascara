@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Fieldset } from 'primereact/fieldset';
 import { Checkbox } from 'primereact/checkbox';
-import { PontoDataTableCrud } from './PontoDataTableCrud';
+import { Card } from 'primereact/card';
 import { Editor } from 'primereact/editor';
 import { Dropdown } from 'primereact/dropdown';
 import { Spinner } from 'primereact/spinner';
@@ -30,14 +30,22 @@ export default class Ficha extends Component {
                 },
                 vantagens: {
                     antecedentes: { pontos: 5, custoPontoBonus: 1 },
-                    disciplinas: { pontos: 3, custoPontoBonus: 5 },
+                    disciplinas: { pontos: 3, custoPontoBonus: 7 },
                     virtudes: { pontos: 8, custoPontoBonus: 2 }
+                },
+                outros: {
+                    humanidade: { pontos: 0, custoPontoBonus: 1 },
+                    forcaDeVontade: { pontos: 0, custoPontoBonus: 1 },
+                    qualidadesDefeitos: { pontos: 0, custoPontoBonus: 1 }
                 },
                 pontosBonus: 0
             },
             mesaSelecionada: null,
             mesas: [],
             antecedentes: [],
+            disciplinas: [],
+            qualidadesDefeitos: [],
+            clas: [],
             ficha: {
                 conceito: '',
                 atributos: {
@@ -102,8 +110,8 @@ export default class Ficha extends Component {
                     }
                 },
                 outros: {
-                    forcaDeVontade: { normal: 0, bonus: 0 },
-                    humanidade: { normal: 0, bonus: 0 },
+                    forcaDeVontade: { pontos: {normal: 1, bonus: 0} },
+                    humanidade: { nome: '', pontos: {normal: 2, bonus: 0} },
                     qualidadesDefeitos: []
                 },
                 vantagens: {
@@ -165,7 +173,7 @@ export default class Ficha extends Component {
 
     getPontosRestantesSecaoFicha(categoria, subcategoria, prioridade) {
         const pontosPrioridade = this.getPontosPrioridade(categoria, subcategoria, prioridade);
-        return pontosPrioridade - this.getPontosNormaisGastosBySubcategoria(this.state.ficha[categoria][subcategoria]);
+        return ((pontosPrioridade === 0) ? 0 : (pontosPrioridade - this.getPontosNormaisGastosBySubcategoria(this.state.ficha[categoria][subcategoria])));
     }
 
     getPontosNormaisGastosBySubcategoria(camposFicha) {
@@ -224,35 +232,60 @@ export default class Ficha extends Component {
         return Object.entries(this.state.ficha.vantagens).map(vantagem => {
             if (vantagem[1] instanceof Array && vantagem[1].length > 0)
                 return this.getPontosBonusGastosBySubcategoria(vantagem[1]) * this.state.pontuacaoFicha.vantagens[vantagem[0]].custoPontoBonus;
+            else if (!(vantagem[1] instanceof Array) && vantagem[1] instanceof Object)
+                return this.getPontosBonusGastosBySubcategoria(vantagem[1]) * this.state.pontuacaoFicha.vantagens[vantagem[0]].custoPontoBonus;
             else
                 return 0;
         }).reduce((total, pontuacao) => total + pontuacao);
     }
 
     getPontosBonusOutros() {
-        return 0;
+        return Object.entries(this.state.ficha.outros).map(outro => {
+            if (outro[1] instanceof Array && outro[1].length > 0)
+                return (outro[1].map(obj => obj.pontos).reduce((total, pontuacao) => total + pontuacao)) * this.state.pontuacaoFicha.outros[outro[0]].custoPontoBonus;
+            else if (!(outro[1] instanceof Array) && outro[1] instanceof Object)
+                return this.getPontosBonusGastosBySubcategoria(outro[1]) * this.state.pontuacaoFicha.outros[outro[0]].custoPontoBonus;
+            else
+                return 0;
+        }).reduce((total, pontuacao) => total + pontuacao);
     }
 
     getTotalPontos(campoDaFicha) {
         return campoDaFicha.normal + campoDaFicha.bonus;
     }
 
+    getTotalPontosHumanidade(campoDaFicha) {
+        const ficha = this.state.ficha;
+        const outros = ficha.outros;
+        outros.humanidade.pontos.normal = this.getTotalPontos(ficha.vantagens.virtudes.consciencia) + this.getTotalPontos(ficha.vantagens.virtudes.autocontrole);
+        return this.getTotalPontos(outros.humanidade.pontos);
+    }
+
+    getTotalPontosForcaDeVontade(campoDaFicha) {
+        const ficha = this.state.ficha;
+        const outros = ficha.outros;
+        outros.forcaDeVontade.pontos.normal = this.getTotalPontos(ficha.vantagens.virtudes.coragem);
+        return this.getTotalPontos(outros.forcaDeVontade.pontos);
+    }
+
     adicionaPonto(categoria, subcategoria, campo, valor) {
+        debugger;
         const prioridade = this.state.ficha[categoria][subcategoria].prioridade;
         const ficha = this.state.ficha;
         let custoPontoBonus = 0;
+        
         if (this.state.pontuacaoFicha[categoria].custoPontoBonus > 0)
             custoPontoBonus = this.state.pontuacaoFicha[categoria].custoPontoBonus;
         else
             custoPontoBonus = this.state.pontuacaoFicha[categoria][subcategoria].custoPontoBonus;
-
+            
         if (this.getPontosRestantesSecaoFicha(categoria, subcategoria, prioridade) > 0)
             ficha[categoria][subcategoria][campo].normal = valor;
         else if (this.getTotalPontosBonusRestantes() >= custoPontoBonus)
             ficha[categoria][subcategoria][campo].bonus = valor - ficha[categoria][subcategoria][campo].normal;
 
         this.setState({ ficha });
-        console.log(ficha.vantagens);
+        console.log(ficha);
     }
 
     removePonto(categoria, subcategoria, campo, valor) {
@@ -277,6 +310,7 @@ export default class Ficha extends Component {
             ficha[categoria][subcategoria][campo].normal = valor;
         }
         this.setState({ ficha });
+        console.log(ficha);
     }
 
     adicionaVantagem(vantagem, valor) {
@@ -287,13 +321,37 @@ export default class Ficha extends Component {
         this.setState({ ...this.state.ficha, vantagens });
     }
 
+    adicionaCampo(categoria, campo, valor) {
+        if (categoria[campo].some(obj => obj.nome === valor.nome))
+            return;
+        if ((this.getTotalPontosBonusRestantes() - valor.pontos) >= 0) {
+            categoria[campo] = categoria[campo].concat([{ nome: valor.nome, pontos: valor.pontos}]);
+            this.setState({ ...this.state.ficha, categoria });
+            console.log(this.state.ficha);
+        }
+    }
+
+    removeCampo(categoria, campo, valor) {
+        categoria[campo] = (categoria[campo].filter(obj => obj.nome !== valor.nome));
+        this.setState({ ...this.state.ficha, categoria });
+        console.log(this.state.ficha);
+    }
+
     componentDidMount() {
         this.setState({ mesas: [{ label: 'Mesa 1', value: 1 }, { label: 'Mesa 2', value: 2 }] });
-        this.setState({
-            antecedentes: [{ label: 'ALIADOS', value: 'ALIADOS' }, { label: 'CONTATOS', value: 'CONTATOS' }, { label: 'FAMA', value: 'FAMA' },
-            { label: 'GERACAO', value: 'GERACAO' }, { label: 'INFLUENCIA', value: 'INFLUENCIA' }, { label: 'LACAIOS', value: 'LACAIOS' }, { label: 'MENTOR', value: 'MENTOR' },
-            { label: 'REBANHO', value: 'REBANHO' }, { label: 'RECURSOS', value: 'RECURSOS' }, { label: 'STATUS', value: 'STATUS' }]
-        });
+
+        let headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa('user:password'));
+
+        fetch('https://vampiroamascaraservice.herokuapp.com/antecedente', { headers }).then(res => res.json())
+        .then(json => json.map(obj => ({label: obj.nome, value: obj.nome}))).then(antecedentes =>  this.setState({antecedentes}));
+
+        fetch('https://vampiroamascaraservice.herokuapp.com/disciplina', { headers }).then(res => res.json())
+        .then(json => json.map(obj => ({label: obj.nome, value: obj.nome}))).then(disciplinas =>  this.setState({disciplinas}));
+
+        fetch('https://vampiroamascaraservice.herokuapp.com/qualidadedefeito', { headers }).then(res => res.json())
+        .then(json => json.map(obj => ({label: `${obj.nome} (${obj.pontos})`, value: obj}))).then(qualidadesDefeitos =>  this.setState({qualidadesDefeitos}));
+
         if (this.props.location.state != null) {
             const pontuacaoFicha = this.state.pontuacaoFicha;
             this.setState({ pontuacaoFicha: { ...pontuacaoFicha, pontosBonus: this.props.location.state.pontos } });
@@ -861,7 +919,7 @@ export default class Ficha extends Component {
                             <span className="w3-badge w3-green">{this.getPontosRestantesSecaoFicha('vantagens', 'antecedentes')}</span>
                             <div className="p-inputgroup">
                                 <Dropdown value={this.state.antecedente} options={this.state.antecedentes} onChange={event => this.setState({ antecedente: event.value })}
-                                    style={{ width: '150px' }} editable={true} placeholder="Edite ou Selecione" />
+                                    style={{ width: '150px' }} placeholder="Selecione..." />
                                 <Button icon="pi pi-plus" label="Add" onClick={event => this.adicionaVantagem('antecedentes', this.state.antecedente)} />
                             </div>
                             <br />
@@ -890,31 +948,76 @@ export default class Ficha extends Component {
                         </div>
                         <div className="card card-w-title">
                             <h1>Disciplinas</h1>
-                            <span className="w3-badge w3-green">3</span>
-                            <PontoDataTableCrud title="Disciplina" />
+                            <span className="w3-badge w3-green">{this.getPontosRestantesSecaoFicha('vantagens', 'disciplinas')}</span>
+                            <div className="p-inputgroup">
+                                <Dropdown value={this.state.disciplina} options={this.state.disciplinas} onChange={event => this.setState({ disciplina: event.value })}
+                                    style={{ width: '150px' }} placeholder="Selecione..." />
+                                <Button icon="pi pi-plus" label="Add" onClick={event => this.adicionaVantagem('disciplinas', this.state.disciplina)} />
+                            </div>
+                            <br />
+                            <Fieldset toggleable={true}>
+                                <div className="p-grid">
+                                    {
+                                        this.state.ficha.vantagens.disciplinas.map((disciplina, index) => {
+                                            return <div key={disciplina.nome}>
+                                                <div className="p-col-6 p-md-2">
+                                                    <label htmlFor={disciplina.nome}>{disciplina.nome}:</label>
+                                                </div>
+                                                <div className="p-col-6 p-md-4">
+                                                    <Spinner id={disciplina.nome} readonly={true} min={0} value={this.getTotalPontos(this.state.ficha.vantagens.disciplinas[index])}
+                                                        onChange={event => {
+                                                            if (event.value > this.getTotalPontos(this.state.ficha.vantagens.disciplinas[index]))
+                                                                this.adicionaPonto('vantagens', 'disciplinas', index, event.value);
+                                                            else if (event.value < this.getTotalPontos(this.state.ficha.vantagens.disciplinas[index]))
+                                                                this.removePonto('vantagens', 'disciplinas', index, event.value);
+                                                        }} />
+                                                </div>
+                                            </div>
+                                        })
+                                    }
+                                </div>
+                            </Fieldset>
                         </div>
                         <div className="card card-w-title">
                             <h1>Virtudes</h1>
-                            <span className="w3-badge w3-green">8</span>
+                            <span className="w3-badge w3-green">{this.getPontosRestantesSecaoFicha('vantagens', 'virtudes')}</span>
                             <Fieldset toggleable={true}>
                                 <div className="p-grid">
                                     <div className="p-col-12 p-md-2">
                                         <label htmlFor="forcaInput">Consciência:</label>
                                     </div>
                                     <div className="p-col-12 p-md-2">
-                                        <InputText id="forcaInput" keyfilter="pnum" />
+                                        <Spinner readonly={true} min={1} value={this.getTotalPontos(this.state.ficha.vantagens.virtudes.consciencia)}
+                                            onChange={event => {
+                                                if (event.value > this.getTotalPontos(this.state.ficha.vantagens.virtudes.consciencia))
+                                                    this.adicionaPonto('vantagens', 'virtudes', 'consciencia', event.value);
+                                                else if (event.value < this.getTotalPontos(this.state.ficha.vantagens.virtudes.consciencia))
+                                                    this.removePonto('vantagens', 'virtudes', 'consciencia', event.value);
+                                            }} />
                                     </div>
                                     <div className="p-col-12 p-md-2">
                                         <label htmlFor="destrezaInput">Autocontrole:</label>
                                     </div>
                                     <div className="p-col-12 p-md-2">
-                                        <InputText id="destrezaInput" keyfilter="pnum" />
+                                        <Spinner readonly={true} min={1} value={this.getTotalPontos(this.state.ficha.vantagens.virtudes.autocontrole)}
+                                            onChange={event => {
+                                                if (event.value > this.getTotalPontos(this.state.ficha.vantagens.virtudes.autocontrole))
+                                                    this.adicionaPonto('vantagens', 'virtudes', 'autocontrole', event.value);
+                                                else if (event.value < this.getTotalPontos(this.state.ficha.vantagens.virtudes.autocontrole))
+                                                    this.removePonto('vantagens', 'virtudes', 'autocontrole', event.value);
+                                            }} />
                                     </div>
                                     <div className="p-col-12 p-md-2">
                                         <label htmlFor="vigorInput">Coragem:</label>
                                     </div>
                                     <div className="p-col-12 p-md-2">
-                                        <InputText id="vigorInput" keyfilter="pnum" />
+                                        <Spinner readonly={true} min={1} value={this.getTotalPontos(this.state.ficha.vantagens.virtudes.coragem)}
+                                            onChange={event => {
+                                                if (event.value > this.getTotalPontos(this.state.ficha.vantagens.virtudes.coragem))
+                                                    this.adicionaPonto('vantagens', 'virtudes', 'coragem', event.value);
+                                                else if (event.value < this.getTotalPontos(this.state.ficha.vantagens.virtudes.coragem))
+                                                    this.removePonto('vantagens', 'virtudes', 'coragem', event.value);
+                                            }} />
                                     </div>
                                 </div>
                             </Fieldset>
@@ -924,9 +1027,28 @@ export default class Ficha extends Component {
                 <div className="p-col-12 p-lg-6">
                     <div className="card card-w-title">
                         <h1>Qualidades e Defeitos</h1>
-                        <div className="p-grid">
-                            <PontoDataTableCrud title="Qualidade/Defeito" />
+                        <div className="p-inputgroup">
+                            <Dropdown value={this.state.qualidadeDefeito} options={this.state.qualidadesDefeitos} onChange={event => this.setState({ qualidadeDefeito: event.value })}
+                                style={{ width: '150px' }} placeholder="Selecione..." />
+                            <Button icon="pi pi-plus" label="Add" onClick={event => this.adicionaCampo(this.state.ficha.outros, 'qualidadesDefeitos', this.state.qualidadeDefeito)} />
                         </div>
+                        <br />
+                        <Fieldset toggleable={true}>
+                            {
+                                this.state.ficha.outros.qualidadesDefeitos.map((qualidadeDefeito, index) => {
+                                    return <div key={qualidadeDefeito.nome}>
+                                        <div className="p-grid">
+                                            <div className="p-col-12 p-md-12">
+                                                <Card>
+                                                    <label htmlFor={qualidadeDefeito.nome}>{`${qualidadeDefeito.nome} (${qualidadeDefeito.pontos})`}</label>
+                                                    <span><Button icon="pi pi-times" className="p-button-secondary" style={{float: 'right'}} onClick={event => this.removeCampo(this.state.ficha.outros, 'qualidadesDefeitos', qualidadeDefeito)}/></span>
+                                                </Card>
+                                            </div>
+                                        </div>
+                                    </div>
+                                })
+                            }
+                        </Fieldset>
                     </div>
                     <div className="card card-w-title">
                         <h1>Humanidade/Trilha</h1>
@@ -938,10 +1060,33 @@ export default class Ficha extends Component {
                                 <InputText id="forcaInput" />
                             </div>
                             <div className="p-col-12 p-md-2">
-                                <label htmlFor="destrezaInput">Pontos:</label>
+                                <label htmlFor="humanidadeInput">Pontos:</label>
                             </div>
                             <div className="p-col-12 p-md-2">
-                                <InputText id="forcaInput" keyfilter="pnum" />
+                                <Spinner id="humanidadeInput" readonly={true} min={2} value={this.getTotalPontosHumanidade(this.state.ficha.outros.humanidade.pontos)}
+                                    onChange={event => {
+                                        if (event.value > this.getTotalPontos(this.state.ficha.outros.humanidade.pontos))
+                                            this.adicionaPonto('outros', 'humanidade', 'pontos', event.value);
+                                        else if (event.value < this.getTotalPontos(this.state.ficha.outros.humanidade.pontos))
+                                            this.removePonto('outros', 'humanidade', 'pontos', event.value);
+                                    }} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card card-w-title">
+                        <h1>Força de Vontade</h1>
+                        <div className="p-grid">
+                            <div className="p-col-12 p-md-2">
+                                <label htmlFor="forcaDeVontadeInput">Pontos:</label>
+                            </div>
+                            <div className="p-col-12 p-md-2">
+                                <Spinner id="forcaDeVontadeInput" readonly={true} min={1} value={this.getTotalPontosForcaDeVontade(this.state.ficha.outros.forcaDeVontade.pontos)}
+                                    onChange={event => {
+                                        if (event.value > this.getTotalPontos(this.state.ficha.outros.forcaDeVontade.pontos))
+                                            this.adicionaPonto('outros', 'forcaDeVontade', 'pontos', event.value);
+                                        else if (event.value < this.getTotalPontos(this.state.ficha.outros.forcaDeVontade.pontos))
+                                            this.removePonto('outros', 'forcaDeVontade', 'pontos', event.value);
+                                    }} />
                             </div>
                         </div>
                     </div>
