@@ -87,7 +87,7 @@ class FichaLista extends Component {
                 <div className="p-grid">
                     <div className="p-col-4" style={{padding:'.75em'}}><label htmlFor="nome">Pontos Bônus:</label></div>
                     <div className="p-col-8" style={{padding:'.5em'}}>
-                        <InputText id="nome" value={this.state.pontosBonus} onInput={event => this.setState({pontosBonus: event.target.value})} keyfilter="pnum"/>
+                        <InputText id="nome" value={this.state.pontosBonus} onChange={event => this.setState({pontosBonus: event.target.value})} keyfilter="pnum"/>
                     </div>
                 </div>
             </Dialog>

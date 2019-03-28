@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 class Logon extends Component {
     render() {
         return (
+            <form onSubmit={event => this.autenticar(event)}>
             <div className="p-grid p-fluid">
                 <div className="p-col-12 p-lg-6">
                     <div className="card card-w-title">
@@ -16,7 +17,7 @@ class Logon extends Component {
                                 <label htmlFor="loginInput">Login:</label>
                             </div>
                             <div className="p-col-6 p-md-6">
-                                <InputText id="loginInput"/>
+                                <InputText id="loginInput" required/>
                             </div>
                         </div>
                         <div className="p-grid">
@@ -34,7 +35,14 @@ class Logon extends Component {
                     </div>
                 </div>
             </div>
+            </form>
         );
+    }
+
+    autenticar(event) {
+        event.preventDefault();
+        
+        console.log('s');
     }
 }
 

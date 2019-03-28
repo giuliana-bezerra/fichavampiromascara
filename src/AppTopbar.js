@@ -21,12 +21,12 @@ export class AppTopbar extends Component {
                 <button className="p-link layout-menu-button" onClick={this.props.onToggleMenu} disabled={this.props.autenticado}>
                     <span className="pi pi-bars"/>
                 </button>
-                <div className="layout-topbar-icons" style={{display: this.state.ficha}}>
+                {/* <div className="layout-topbar-icons" style={{display: this.state.ficha}}>
                     <button className="p-link">
                         <span className="layout-topbar-item-text">Salvar</span>
                         <span className="layout-topbar-icon pi pi-check"/>
                     </button>
-                </div>
+                </div> */}
                 {/* <div className="layout-topbar-icons">
                     <span className="layout-topbar-search">
                         <InputText type="text" placeholder="Search" />

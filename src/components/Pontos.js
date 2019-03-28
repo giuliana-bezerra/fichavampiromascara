@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button } from 'primereact/button';
 
 export default class Pontos extends Component {
     render() {

@@ -8,6 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Spinner } from 'primereact/spinner';
 import Pontos from './Pontos';
 import { Button } from 'primereact/button';
+import {Messages} from 'primereact/messages';
 
 
 export default class Ficha extends Component {
@@ -15,6 +16,7 @@ export default class Ficha extends Component {
         super(props);
         this.prioridades = [{ label: 'Primária', value: 1 }, { label: 'Secundária', value: 2 }, { label: 'Terciária', value: 3 }];
         this.state = {
+            show: false,
             pontuacaoFicha: {
                 atributos: {
                     primaria: 10,
@@ -378,14 +380,52 @@ export default class Ficha extends Component {
     }
 
     updateProperty(property, subproperty, value) {
+        debugger;
         let ficha = this.state.ficha;
         ficha[property][subproperty] = value;
         this.setState({ficha});
         console.log(this.state.ficha);
     }
 
+    enviarFicha(event) {
+        event.preventDefault();
+
+        if (!this.validarFicha())
+            this.messages.show({severity: 'error', summary: 'ERRO', detail: 'Ficha inválida! Preencha as informações solicitadas.'});
+        else {
+            console.log(this.state.ficha);
+        }
+        window.scrollTo(0, 0);
+    }
+
+    validarFicha() {
+        debugger;
+        return this.isPontosGastos() & !this.isCamposNaoPreenchidos();
+    }
+
+    isCamposNaoPreenchidos() {
+        return Object.values(this.state.ficha.conceito).some(campo => !campo) || !this.state.ficha.outros.humanidade.nome;
+    }
+
+    isPontosGastos() {
+        return (this.getTotalPontosBonusRestantes() + this.getTotalPontosNormaisRestantes()) === 0;
+    }
+
+    getTotalPontosNormaisRestantes() {
+        return this.getPontosRestantesSecaoFicha('atributos', 'fisicos', this.state.ficha.atributos.fisicos.prioridade) + 
+        this.getPontosRestantesSecaoFicha('atributos', 'sociais', this.state.ficha.atributos.sociais.prioridade) +
+        this.getPontosRestantesSecaoFicha('atributos', 'mentais', this.state.ficha.atributos.mentais.prioridade) +
+        this.getPontosRestantesSecaoFicha('habilidades', 'talentos', this.state.ficha.habilidades.talentos.prioridade) +
+        this.getPontosRestantesSecaoFicha('habilidades', 'pericias', this.state.ficha.habilidades.pericias.prioridade) +
+        this.getPontosRestantesSecaoFicha('habilidades', 'conhecimentos', this.state.ficha.habilidades.conhecimentos.prioridade) +
+        this.getPontosRestantesSecaoFicha('vantagens', 'antecedentes') + this.getPontosRestantesSecaoFicha('vantagens', 'disciplinas') +
+        this.getPontosRestantesSecaoFicha('vantagens', 'virtudes');
+    }
+
     render() {
         return (
+            <form>
+            <Messages id="mensagens" ref={(el) => this.messages = el}></Messages>
             <div className="p-grid p-fluid">
                 <div className="p-col-12 p-lg-6">
                     <div className="card card-w-title">
@@ -395,19 +435,19 @@ export default class Ficha extends Component {
                                 <label htmlFor="nomeInput">Nome:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="nomeInput" />
+                                <InputText id="nomeInput" value={this.state.ficha.conceito.nome} onChange={event => this.updateProperty('conceito', 'nome', event.target.value)}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="jogadorInput">Jogador:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="jogadorInput" />
+                                <InputText id="jogadorInput" value={this.state.ficha.conceito.jogador} onChange={event => this.updateProperty('conceito', 'jogador', event.target.value)}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="cronicaInput">Crônica:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="cronicaInput" />
+                                <InputText id="cronicaInput" value={this.state.ficha.conceito.cronica} onChange={event => this.updateProperty('conceito', 'cronica', event.target.value)}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="naturezaInput">Natureza:</label>
@@ -439,19 +479,19 @@ export default class Ficha extends Component {
                                 <label htmlFor="refugioInput">Refúgio:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="refugioInput" />
+                                <InputText id="refugioInput" value={this.state.ficha.conceito.refugio} onChange={event => this.updateProperty('conceito', 'refugio', event.target.value)}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="conceitoInput">Conceito:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <InputText id="conceitoInput" />
+                                <InputText id="conceitoInput" value={this.state.ficha.conceito.conceito} onChange={event => this.updateProperty('conceito', 'conceito', event.target.value)}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="mesaInput">Mesa:</label>
                             </div>
                             <div className="p-col-12 p-md-4">
-                                <Dropdown id="mesaInput" options={this.state.mesas} placeholder="Selecione..." value={this.state.mesaSelecionada} onChange={event => this.setState({ mesaSelecionada: event.value })} autoWidth={false} />
+                                <Dropdown id="mesaInput" options={this.state.mesas} placeholder="Selecione..." value={this.state.ficha.conceito.mesa} onChange={event => this.updateProperty('conceito', 'mesa', event.value)} autoWidth={false} />
                             </div>
                         </div>
                     </div>
@@ -1081,10 +1121,10 @@ export default class Ficha extends Component {
                         <h1>Humanidade/Trilha</h1>
                         <div className="p-grid">
                             <div className="p-col-12 p-md-2">
-                                <label htmlFor="destrezaInput">Nome:</label>
+                                <label htmlFor="humanidadeNomeInput">Nome:</label>
                             </div>
                             <div className="p-col-12 p-md-6">
-                                <InputText id="forcaInput" />
+                                <InputText id="humanidadeNomeInput" value={this.state.ficha.outros.humanidade.nome} onChange={event => this.updateProperty('outros', 'humanidade', {nome: event.target.value, pontos: this.state.ficha.outros.humanidade.pontos})}/>
                             </div>
                             <div className="p-col-12 p-md-2">
                                 <label htmlFor="humanidadeInput">Pontos:</label>
@@ -1118,6 +1158,11 @@ export default class Ficha extends Component {
                         </div>
                     </div>
                     <div className="card card-w-title">
+                        <h1>Prelúdio</h1>
+                        <Editor style={{ height: '320px' }} />
+                    </div>
+                    {(this.state.show) &&
+                        <div className="card card-w-title">
                         <h1>Vitalidade</h1>
                         <div className="p-grid">
                             <div className="p-col-12 p-md-4">
@@ -1149,14 +1194,13 @@ export default class Ficha extends Component {
                                 <label htmlFor="cb1" className="p-checkbox-label">Incapacitado</label>
                             </div>
                         </div>
-                    </div>
-                    <div className="card card-w-title">
-                        <h1>Prelúdio</h1>
-                        <Editor style={{ height: '320px' }} />
-                    </div>
+                        </div>
+                    }
                 </div>
+                <Button label="Enviar Ficha" onClick={event => this.enviarFicha(event)}/>
                 <Pontos pontos={this.getTotalPontosBonusRestantes()} />
             </div>
+            </form>
         );
     }
 }
