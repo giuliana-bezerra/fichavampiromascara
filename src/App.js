@@ -22,7 +22,6 @@ import Logon from './pages/Logon';
 import Registro from './pages/Registro';
 import { withRouter } from 'react-router-dom';
 import { matchPath } from "react-router";
-import { Button } from 'primereact/button';
 
 class App extends Component {
     constructor() {
@@ -30,7 +29,7 @@ class App extends Component {
         this.state = {
             layoutMode: 'static',
             layoutColorMode: 'dark',
-            staticMenuInactive: false,
+            staticMenuInactive: true,
             overlayMenuActive: false,
             mobileMenuActive: false
         };
@@ -137,12 +136,12 @@ class App extends Component {
 
             // location is an object like window.location
             console.log(action, location.pathname, location.state);
-            // if(resultado && localStorage.getItem('auth-token') === null){
-            //     this.props.history.replace('/?msg=você precisa estar logado para acessar o endereço');
-            //     this.setState({staticMenuInactive: true});
-            // } else if (!resultado)
-            //     this.setState({staticMenuInactive: false});
-            // else
+            if(resultado && localStorage.getItem('auth-token') === null){
+                 this.props.history.replace('/?msg=você precisa estar logado para acessar o endereço');
+                 this.setState({staticMenuInactive: true});
+            } else if (!resultado)
+                 this.setState({staticMenuInactive: false});
+            else
                 this.setState({staticMenuInactive: false});
         });
     }

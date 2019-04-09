@@ -390,6 +390,7 @@ export default class Ficha extends Component {
     enviarFicha(event) {
         event.preventDefault();
 
+        console.log('Ficha:' + JSON.stringify(this.state.ficha));
         if (!this.validarFicha())
             this.messages.show({severity: 'error', summary: 'ERRO', detail: 'Ficha inválida! Preencha as informações solicitadas.'});
         else {
